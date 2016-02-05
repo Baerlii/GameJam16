@@ -3,12 +3,12 @@ using System.Collections;
 
 public class PlayerCam : MonoBehaviour {
 
-	public GameObject player;
+	private GameObject player;
 	public float camDistance;
 
 	// Use this for initialization
 	void Start () {
-	
+		player = GameObject.Find("Player");
 	}
 
 	void FixedUpdate(){

@@ -24,6 +24,17 @@ ExportedObj/
 
 # Unity3D Generated File On Crash Reports
 sysinfo.txt
+UnityProject/Temp/*
 UnityProject/Temp/UnityLockfile
 UnityProject/Temp/UnityLockfile
 UnityProject/Library/assetDatabase3
+
+*.meta
+
+*.info
+
+*.dll
+
+UnityProject/Library/metadata/64/644d6050e615e454681056e981dc542b
+
+UnityProject/Library/metadata/39/39d4366658d3a4dd6b326850a8bcc666

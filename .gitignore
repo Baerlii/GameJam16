@@ -24,6 +24,7 @@ ExportedObj/
 
 # Unity3D Generated File On Crash Reports
 sysinfo.txt
+UnityProject/Temp/*
 UnityProject/Temp/UnityLockfile
 UnityProject/Temp/UnityLockfile
 UnityProject/Library/assetDatabase3

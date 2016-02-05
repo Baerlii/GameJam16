@@ -15,9 +15,12 @@ public class textAdventureController : MonoBehaviour {
     public List<string> genericAnswers;
 
     public string fieldLocked;
+    public string youHaveAKey;
     public string wallInWay;
     public string won;
-    public string initialMessage;
+    public string help;
+
+    public bool hasKey;
 
     public mapField[][] map;
 
@@ -33,9 +36,10 @@ public class textAdventureController : MonoBehaviour {
         historyIndex = 0;
         consoleHistory = new List<string>();
 
-        output.text = initialMessage;
-
         initMap();
+        writeHelp();
+
+        hasKey = false;
 
         genericAnswers.Add("What do you say???");
         genericAnswers.Add("huh?");
@@ -60,16 +64,16 @@ public class textAdventureController : MonoBehaviour {
             map[i] = new mapField[3];
         }
 
-        map[0][0] = new mapField("no", false, "Cell", "maybe go north?");
-        map[1][0] = new mapField("key", false, "Cell", "maybe go west?");
-        map[1][1] = new mapField("no", false, "Cell", "maybe go west?");
-        map[2][0] = new mapField("no", false, "Cell", "maybe go north?");
+        map[0][0] = new mapField("no", true, "Cell", "maybe go north?");
+        map[1][0] = new mapField("key", true, "Cell", "maybe go west?");
+        map[1][1] = new mapField("no", true, "Cell", "maybe go west?");
+        map[2][0] = new mapField("no", true, "Cell", "maybe go north?");
         map[0][1] = new mapField("exit", false, "Hallway", "maybe go north?");
         map[1][1] = new mapField("no", false, "Hallway", "maybe go north?");
-        map[2][1] = new mapField("no", false, "Hallway", "maybe go north?");
-        map[0][2] = new mapField("no", false, "Cell", "maybe go north?");
-        map[1][2] = new mapField("no", false, "Cell", "maybe go north?");
-        map[2][2] = new mapField("no", false, "Cell", "maybe go north?");
+        map[2][1] = new mapField("no", true, "Hallway", "maybe go north?");
+        map[0][2] = new mapField("no", true, "Cell", "maybe go north?");
+        map[1][2] = new mapField("no", true, "Cell", "maybe go north?");
+        map[2][2] = new mapField("newspaper", false, "Cell", "maybe go north?");
     }
 
     private void SubmitInput(string currText)
@@ -90,6 +94,11 @@ public class textAdventureController : MonoBehaviour {
         HandleInputs();
     }
 
+    void writeHelp()
+    {
+        help = "go north \ngo east \ngo south \ngo west \n\nlook around \npickup";
+    }
+
     void ProcessInput(string command)
     {
         Debug.Log("X: " + playerPosX + " // Y: " + playerPosY);
@@ -99,14 +108,81 @@ public class textAdventureController : MonoBehaviour {
         if(commandArray.Length > 0 && command != "")
         {
             string baseCommand = commandArray[0];
-            string parameter = commandArray[1];
+            string parameter = "";
+            if (commandArray.Length > 1)
+            {
+                parameter = commandArray[1];
+            }
 
             switch (baseCommand)
             {
+                case "look":
+                    switch (parameter)
+                    {
+                        case "around":
+                            if (playerPosY < 1)
+                            {
+                                output.text = "in the north there is a wall.";
+                            }
+                            else
+                            {
+                                output.text = "in the north there is a " + map[playerPosX][playerPosY - 1].name;
+                            }
+
+                            if (playerPosX == map.Length - 1)
+                            {
+                                output.text += "\nin the east there is a wall.";
+                            }
+                            else
+                            {
+                                output.text += "\nin the east there is a " + map[playerPosX + 1][playerPosY].name;
+                            }
+
+                            if (playerPosY == map[0].Length - 1)
+                            {
+                                output.text += "\nin the south there is a wall.";
+                            }
+                            else
+                            {
+                                output.text += "\nin the south there is a " + map[playerPosX][playerPosY + 1].name;
+                            }
+
+                            if (playerPosX < 1)
+                            {
+                                output.text += "\nin the weast there is a wall.";
+                            }
+                            else
+                            {
+                                output.text += "\nin the west there is a " + map[playerPosX - 1][playerPosY].name;
+                            }
+                            break;
+                    }
+
+                    break;
+                case "pickup":
+                    switch (parameter)
+                    {
+                        case "newspaper":
+                            if(map[playerPosX][playerPosY].item == "newspaper")
+                            {
+                                output.text = "there was a key in the newspaper! it is now in your inventory.";
+                                hasKey = true;
+                            }
+                            else
+                            {
+                                output.text = "no nowspaper here!";
+                            }
+                            break;
+                        default:
+                            output.text = "there is no " + parameter + " to pick up!";
+                            break;
+                    }
+                    break;
                 case "go":
                     mapField target;
                     int targetX = playerPosX;
                     int targetY = playerPosY;
+                    bool parameterValid = true;
                     switch (parameter)
                     {
                         case "north":
@@ -121,37 +197,60 @@ public class textAdventureController : MonoBehaviour {
                         case "west":
                             targetX--;
                             break;
+                        default:
+                            parameterValid = false;
+                            break;
                     }
                     Debug.Log("target X: " + targetX + " // target Y: " + targetY);
 
 
-                    // Super ugly winning condition
-                    if (playerPosX == 0 && playerPosY == 1 && parameter == "west")
+                    if (parameterValid)
                     {
-                        output.text = won;
-                    }
-                    else
-                    {
-                        if (CheckBoundries(targetX, targetY))
+                        // Super ugly winning condition
+                        if (playerPosX == 0 && playerPosY == 1 && parameter == "west")
                         {
-                            target = map[targetX][targetY];
-                            if (target.locked)
-                            {
-                                output.text = fieldLocked;
-                            }
-                            else
-                            {
-                                output.text = YouWent(target.name, parameter);
-                                playerPosX = targetX;
-                                playerPosY = targetY;
-                            }
+                            output.text = won;
                         }
                         else
                         {
-                            output.text = wallInWay;
+                            if (CheckBoundries(targetX, targetY))
+                            {
+                                target = map[targetX][targetY];
+                                if (target.locked)
+                                {
+                                    if (hasKey)
+                                    {
+                                        output.text = youHaveAKey;
+                                        output.text += "\n" + YouWent(target.name, parameter);
+                                        playerPosX = targetX;
+                                        playerPosY = targetY;
+                                    }
+                                    else
+                                    {
+                                        output.text = fieldLocked;
+                                    }
+                                }
+                                else
+                                {
+                                    output.text = YouWent(target.name, parameter);
+                                    playerPosX = targetX;
+                                    playerPosY = targetY;
+                                }
+                            }
+                            else
+                            {
+                                output.text = wallInWay;
+                            }
                         }
                     }
+                    else
+                    {
+                        output.text = baseCommand + " funktioniert nicht mir diesem Parameter!";
+                    }
 
+                    break;
+                case "help":
+                    output.text = help;
                     break;
 
                 default:
@@ -168,6 +267,7 @@ public class textAdventureController : MonoBehaviour {
                     break;
             }
         }
+        output.text += "\nYou Typed: " + command;
     }
 
     bool CheckBoundries(int posX, int posY)

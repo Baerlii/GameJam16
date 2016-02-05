@@ -8,6 +8,7 @@ public class PlayerController : MonoBehaviour {
 	private const float PLAYER_MAX_HEALTH = 100.0f;
 	private const float PLAYER_HEALTH_REG = 0.05f;
 	private float playerHealth = 100.0f;
+	private int keys = 0;
 	private const float BULLET_SPEED = 17.0f;
 	private const float WEAPON_COOLDOWN = 0.3f;
 
@@ -67,6 +68,7 @@ public class PlayerController : MonoBehaviour {
 		}
 	}
 
+
 	IEnumerator showHealthBar(){
 		SHOW_HEALTH = true;
 		yield return new WaitForSeconds(WEAPON_COOLDOWN * 6.5f);
@@ -77,5 +79,29 @@ public class PlayerController : MonoBehaviour {
 		ON_COOLDOWN = true;
 		yield return new WaitForSeconds(WEAPON_COOLDOWN);
 		ON_COOLDOWN = false;
+	}
+
+	void OnCollisionEnter2D(Collision2D coll) {
+		if (coll.gameObject.tag == "Door" && keys > 0) {
+			keys--;
+			Destroy (coll.gameObject);
+		}else if (coll.gameObject.tag == "Key") {
+			keys++;
+			Destroy (coll.gameObject);
+		}
+	}
+
+	void OnTriggerEnter2D(Collider2D other) {
+		Debug.Log ("log");
+		if (other.gameObject.tag == "FOW") {
+			other.gameObject.SetActive (false);
+		}
+	}
+
+	void OnTriggerExit2D(Collider2D other) {
+		Debug.Log ("exit");
+		if (other.gameObject.tag == "FOW") {
+			other.gameObject.SetActive (true);
+		}
 	}
 }

@@ -5,6 +5,7 @@ public class BulletController : MonoBehaviour {
 
 	public float bulletSpeed;
 	private float lifetime;
+	private bool dontDestroy = false;
 
 	// Use this for initialization
 	void Start () {
@@ -25,8 +26,16 @@ public class BulletController : MonoBehaviour {
 			coll.gameObject.SendMessage ("TakeDamage", 20);
 		}else if (coll.gameObject.tag == "Player") {
 			coll.gameObject.SendMessage ("TakeDamage", 10);
+		}else if (coll.gameObject.tag == "Furniture") {
+			Physics2D.IgnoreCollision(coll.gameObject.GetComponent<Collider2D>(), GetComponent<Collider2D>());
+			dontDestroy = true;
 		}
-		Destroy (gameObject);
+		if (dontDestroy) {
+			dontDestroy = false;
+		} else {
+			Destroy (gameObject);
+		}
+
 	}
 
 }
